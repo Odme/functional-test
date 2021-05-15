@@ -9,6 +9,10 @@ import validateEnv from '@utils/validateEnv';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute()]);
+const app = App([IndexRoute(), new UsersRoute(), new AuthRoute()]);
 
+app.initializeErrorHandling();
+app.initializeMiddlewares();
+app.initializeRoutes();
+app.initializeSwagger();
 app.listen();
