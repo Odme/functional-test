@@ -10,6 +10,6 @@ const IndexController = () => {
   };
 
   return { index };
-}
+};
 
 export default IndexController;

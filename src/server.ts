@@ -1,5 +1,4 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
+import './process.config.ts';
 import 'dotenv/config';
 import App from '@/app';
 import AuthRoute from '@routes/auth.route';
@@ -9,10 +8,7 @@ import validateEnv from '@utils/validateEnv';
 
 validateEnv();
 
-const app = App([IndexRoute(), new UsersRoute(), new AuthRoute()]);
+const app = App([IndexRoute(), UsersRoute(), AuthRoute()]);
 
-app.initializeErrorHandling();
-app.initializeMiddlewares();
-app.initializeRoutes();
-app.initializeSwagger();
+app.connectToDatabase();
 app.listen();

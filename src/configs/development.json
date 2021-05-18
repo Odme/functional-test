@@ -1,4 +1,9 @@
 {
-    "env": "development",
-    "secretKey": "secretKey"
+  "env": "development",
+  "dbConfig": {
+    "host": "localhost",
+    "database": "functional_test",
+    "port": 27017
+  },
+  "secretKey": "secretKey"
 }

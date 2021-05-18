@@ -111,7 +111,7 @@ definitions:
         - email
         - password
     properties:
-      id:
+      _id:
         type: integer
         description: user Id
       email:

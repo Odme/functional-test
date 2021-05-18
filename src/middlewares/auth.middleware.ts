@@ -7,13 +7,14 @@ import userModel from '@models/users.model';
 
 const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const Authorization = req.cookies['Authorization'] || req.header('Authorization').split('Bearer ')[1] || null;
+    const Authorization = req.cookies.Authorization || req.header('Authorization').split('Bearer ')[1] || null;
 
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
-      const verificationResponse = (await jwt.verify(Authorization, secretKey)) as DataStoredInToken;
-      const userId = verificationResponse.id;
-      const findUser = userModel.find(user => user.id === userId);
+      const verifyResponse = (await jwt.verify(Authorization, secretKey)) as DataStoredInToken;
+      // eslint-disable-next-line no-underscore-dangle
+      const userId = verifyResponse._id;
+      const findUser = await userModel.findById(userId);
 
       if (findUser) {
         req.user = findUser;

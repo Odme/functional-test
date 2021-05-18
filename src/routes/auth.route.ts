@@ -1,24 +1,20 @@
 import { Router } from 'express';
 import AuthController from '@controllers/auth.controller';
-import { CreateUserDto } from '@dtos/users.dto';
-import Route from '@/interfaces/route.interface';
+import { CreateUserDtoType } from '@dtos/users.dto';
+import { Route } from '@/interfaces/route.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 
-class AuthRoute implements Route {
-  public path = '/';
-  public router = Router();
-  public authController = new AuthController();
+const AuthRoute = (): Route => {
+  const path = '/';
+  const router = Router();
+  const authController = AuthController();
 
-  constructor() {
-    this.initializeRoutes();
-  }
+  router.post(`${path}signup`, validationMiddleware(CreateUserDtoType, 'body'), authController.signUp);
+  router.post(`${path}login`, validationMiddleware(CreateUserDtoType, 'body'), authController.logIn);
+  router.post(`${path}logout`, authMiddleware, authController.logOut);
 
-  private initializeRoutes() {
-    this.router.post(`${this.path}signup`, validationMiddleware(CreateUserDto, 'body'), this.authController.signUp);
-    this.router.post(`${this.path}login`, validationMiddleware(CreateUserDto, 'body'), this.authController.logIn);
-    this.router.post(`${this.path}logout`, authMiddleware, this.authController.logOut);
-  }
-}
+  return { path, router };
+};
 
 export default AuthRoute;

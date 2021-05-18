@@ -1,5 +1,4 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
+import './process.config.ts';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -7,29 +6,29 @@ import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
+import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import Routes from '@/interfaces/route.interface';
+import dbConnection from '@databases';
+import { Route } from '@interfaces/route.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 
-const App = (routes: Routes[]) => {
+const App = (routes: Route[]) => {
   const app: express.Application = express();
   const port: string | number = process.env.PORT || 3000;
   const env: string = process.env.NODE_ENV || 'development';
 
   const listen = (): void => {
     app.listen(port, () => {
-      logger.info(`=================================`);
+      logger.info('=================================');
       logger.info(`======= ENV: ${env} =======`);
       logger.info(`🚀 App listening on the port ${port}`);
-      logger.info(`=================================`);
+      logger.info('=================================');
     });
-  }
+  };
 
-  const getServer = (): express.Application => {
-    return app;
-  }
+  const getServer = (): express.Application => app;
 
   const initializeMiddlewares = (): void => {
     if (env === 'production') {
@@ -46,13 +45,13 @@ const App = (routes: Routes[]) => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
-  }
+  };
 
   const initializeRoutes = (): void => {
-    routes.forEach(route => {
+    routes.forEach((route) => {
       app.use('/', route.router);
     });
-  }
+  };
 
   const initializeSwagger = (): void => {
     const options = {
@@ -68,16 +67,30 @@ const App = (routes: Routes[]) => {
 
     const specs = swaggerJSDoc(options);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-  }
+  };
 
   const initializeErrorHandling = (): void => {
     app.use(errorMiddleware);
-  }
+  };
+
+  const connectToDatabase = () => {
+    if (env !== 'production') {
+      set('debug', true);
+    }
+
+    connect(dbConnection.url, dbConnection.options);
+  };
+
+  initializeErrorHandling();
+  initializeMiddlewares();
+  initializeRoutes();
+  initializeSwagger();
 
   return {
-    getServer, listen, initializeErrorHandling,
-    initializeMiddlewares, initializeRoutes, initializeSwagger,
-  }
-}
+    connectToDatabase,
+    getServer,
+    listen,
+  };
+};
 
 export default App;
