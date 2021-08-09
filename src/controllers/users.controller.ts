@@ -27,14 +27,14 @@ const UsersController = () => {
     }
   };
 
-  const createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const createUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
       const createUserData: User = await userService.createUser(userData);
 
       res.status(201).json({ data: createUserData, message: 'created' });
     } catch (error) {
-      next(error);
+      res.status(400).json({ error: error.message });
     }
   };
 

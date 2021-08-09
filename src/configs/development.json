@@ -2,7 +2,7 @@
   "env": "development",
   "dbConfig": {
     "host": "localhost",
-    "database": "functional_test",
+    "database": "test",
     "port": 27017
   },
   "secretKey": "secretKey"

@@ -1,22 +1,20 @@
-import { RequestHandler } from 'express';
-import HttpException from '@exceptions/HttpException';
+import {
+  NextFunction, Request, RequestHandler, Response,
+} from 'express';
 import { ObjectSchema } from 'joi';
 
 const validationMiddleware = (
   type: ObjectSchema,
-  value: string | 'body' | 'query' | 'params' = 'body',
-  // eslint-disable-next-line arrow-body-style
-): RequestHandler => {
-  return (req, res, next) => {
-    type.validateAsync(req[value]).then((result) => {
-      if (result.errors) {
-        const message = result.errors;
-        next(new HttpException(400, message));
-      } else {
-        next();
-      }
-    });
-  };
+  value: string | 'body' | 'query' | 'params' | 'header',
+): RequestHandler => async (req: Request, res: Response, next: NextFunction) => {
+  const validation = type.validate(req[value]);
+  const { error: validationError } = validation;
+  if (validationError) {
+    const { details } = validationError;
+    const response = details.map(({ message }) => message).join(', ');
+    return res.status(400).send({ error: response });
+  }
+  return next();
 };
 
 export default validationMiddleware;
